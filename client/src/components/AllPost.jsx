@@ -1,43 +1,50 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
-const AllPost = () => {
-  const desc =
-    " Lorem ipsum dolor sit amet consectetur adipisicing elit. Non fugit velquo blanditiis repellat et veritatis nobis nostrum, ratione voluptatum pariatur ipsum quasi iste magni ducimus. Saepe eaque ullam pariatur utin voluptatibus, perferendis ipsa illo nesciunt impedit isteconsectetur! Lorem ipsum dolor sit, amet consectetur adipisicing elit.Quia ad error itaque voluptatibus blanditiis fuga voluptatum. Minimaobcaecati quam voluptatum quia cumque beatae esse doloribusaccusantium, dolorem quae blanditiis labore! Lorem ipsum dolor sitamet consectetur adipisicing elit. Pariatur est ipsa, cupiditateminus, sunt, commodi dolores id delectus cum libero temporibus laborererum iste. Praesentium delectus reprehenderit incidunt dolorumlaboriosam.";
-
+const AllPost = ({
+  key,
+  id,
+  src,
+  title,
+  username,
+  desc,
+  updatedAt,
+  sliceNum,
+}) => {
   return (
-    <div className=" w-full flex mt-8 space-x-4 cursor-pointer">
-      {/* Left */}
+    <>
+      <Link to={`/posts/post/${id}`}>
+        <div className=" w-full flex flex-col mt-8 lg:space-x-4 cursor-pointer lg:flex-row">
+          {/* Left */}
 
-      <div className=" w-[35%] h-[200px] flex justify-center items-center">
-        <img
-          src="https://images.unsplash.com/photo-1519962551779-514fa155be9a?q=80&w=3197&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          alt=""
-          className="h-full w-full object-cover"
-        />
-      </div>
+          <div className=" w-[100%] h-[250px] lg:w-[35%] lg:h-[200px]  flex justify-center items-center">
+            <img src={src} alt="" className="h-full w-full object-cover" />
+          </div>
 
-      {/* Right */}
+          {/* Right */}
 
-      <div className=" flex flex-col w-[65%] ">
-        <h1 className="text-xl font-bold md:mb-2 mb-1 md:text-2xl text-red-500">
-          Title Of The Post
-        </h1>
-        <div className="flex mb-2 text-sm font-semibold text-gray-500 items-center space-x-5 md:mb-4 ">
-          <p>Sudev Kumar @</p>
-          <div className="flex space-x-5">
-            <p>16/12/2024</p>
-            <p>16.45</p>
+          <div className=" flex flex-col w-[100%] lg:w-[65%] mt-2">
+            <h1 className="text-xl font-bold md:mb-2 mb-1 md:text-2xl text-red-500">
+              {title.length > 52 ? title?.substring(0, 47) + "..." : title}
+              {/* {title?.substring(0, 52)} */}
+            </h1>
+            <div className="flex mb-2 text-sm font-semibold text-gray-500 items-center space-x-5 md:mb-4 ">
+              <p>{username}@</p>
+              <div className="flex space-x-5">
+                <p>{new Date(updatedAt).toString().slice(0, 15)}</p>
+                <p>{new Date(updatedAt).toString().slice(16, 21)}</p>
+              </div>
+            </div>
+            {desc?.length > 300 ? (
+              <p className=" text-gray-500 font-light leading-6 tracking-wide">
+                {desc?.substring(0, sliceNum)}...
+              </p>
+            ) : (
+              <p>{desc}</p>
+            )}
           </div>
         </div>
-        {desc.length > 300 ? (
-          <p className=" text-gray-500 font-light leading-6 tracking-wide">
-            {desc.substring(0, 300)}...
-          </p>
-        ) : (
-          <p>{desc}</p>
-        )}
-      </div>
-    </div>
+      </Link>
+    </>
   );
 };
 

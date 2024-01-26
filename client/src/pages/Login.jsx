@@ -1,12 +1,59 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { BiSolidHide, BiSolidShow } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { URL } from "../utils/url";
+
+import { UserContext } from "../context/userContext";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleLogin = async () => {
+    setLoading(true);
+    if (!email || !password) {
+      setLoading(false);
+      return toast.error("All fields are required!");
+    }
+
+    const object = {
+      email,
+      password,
+    };
+
+    try {
+      const res = await axios.post(URL + "auth/login", object);
+      if (res?.status === 200) {
+        toast.success("User register successfully!");
+        setUser(res?.data);
+        console.log(res?.data);
+        localStorage.setItem(
+          "token",
+          JSON.stringify({ token: res?.data?.token, info: res?.data?.user })
+        );
+        navigate("/");
+        setEmail("");
+        setPassword("");
+      }
+      setLoading(false);
+    } catch (error) {
+      if (error?.response?.status === 500) {
+        setLoading(false);
+        return toast.success("User is already registered!");
+      }
+      console.log(error);
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,6 +66,7 @@ const Login = () => {
           id=""
           className="w-[100%] border border-red-400 py-1 px-3 placeholder:text-sm rounded-sm placeholder:text-red-400 text-red-400 outline-none text-sm"
           placeholder="Enter your email id..."
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
@@ -27,6 +75,7 @@ const Login = () => {
           id=""
           className="w-[100%] border border-red-400 py-1 px-3 placeholder:text-sm rounded-sm placeholder:text-red-400 text-red-400 outline-none text-sm"
           placeholder="Enter your password..."
+          onChange={(e) => setPassword(e.target.value)}
         />
         <div className=" flex p-1 text-sm items-center gap-1 text-red-400">
           <span className="" onClick={toggleShowPassword}>
@@ -36,8 +85,13 @@ const Login = () => {
             {showPassword ? "Hide Password" : "Show passwod"}
           </p>
         </div>
-        <button className=" bg-red-400 py-1 rounded-sm text-white hover:text-red-400 hover:bg-white hover:border-red-400 hover:border">
-          Login
+        <button
+          onClick={handleLogin}
+          className={` bg-red-400 py-1 rounded-sm text-white hover:text-red-400 hover:bg-white hover:border-red-400 hover:border ${
+            loading ? " cursor-not-allowed" : "cursor-pointer"
+          }`}
+        >
+          {loading ? "Loading..." : "Login"}
         </button>
 
         <div className=" flex p-2 justify-center item-center gap-1">

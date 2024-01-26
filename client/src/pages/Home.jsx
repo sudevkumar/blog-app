@@ -1,10 +1,25 @@
-import React from "react";
-import HomePost from "../components/AllPost";
+import AllPost from "../components/AllPost";
+import Loader from "../components/Loader";
 
-const Home = () => {
+const Home = ({ data, loading }) => {
+  const sliceNum = 300;
   return (
-    <div className="w-[70%] m-auto min-h-[63.2vh] h-auto mb-4">
-      <HomePost />
+    <div className="lg:w-[70%] md:w-[80%] w-[90%]  m-auto min-h-[63.2vh] h-auto mb-4">
+      {loading ? (
+        <Loader />
+      ) : (
+        data.map((ele, ind) => (
+          <AllPost
+            src={ele.photo}
+            title={ele.title}
+            username={ele.username}
+            desc={ele.desc}
+            id={ele._id}
+            updatedAt={ele.updatedAt}
+            sliceNum={sliceNum}
+          />
+        ))
+      )}
     </div>
   );
 };

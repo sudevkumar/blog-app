@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ImCross } from "react-icons/im";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { URL } from "../utils/url";
+import toast from "react-hot-toast";
 
 const EditPage = () => {
   const [file, setFile] = useState("");
   const [cat, setCat] = useState("");
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
   const [cats, setCats] = useState([]);
+  const [data, setData] = useState([]);
+  const { id } = useParams();
+  const userInfo = JSON.parse(localStorage.getItem("token"));
 
   const addCategoryHandleer = () => {
     let updatedCat = [...cats];
@@ -15,16 +24,48 @@ const EditPage = () => {
 
   const deleteCategoryHandleer = (e) => {
     let updatedCat = [...cats];
-    console.log(updatedCat);
+
     const newF = updatedCat.filter((ele) => ele !== e);
-    // updatedCat.splice(i);
-    console.log(newF);
     setCats(newF);
   };
 
-  //   const handleCreatePostHandler = (e) => {
-  //     e.preventDefault();
-  //   };
+  const fetchPostUpdatedData = async () => {
+    try {
+      const res = await axios.get(URL + `post/${id}`);
+      setData(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUpdatePost = async () => {
+    const object = {
+      title: title || data?.title,
+      desc: desc || data?.desc,
+      photo: file || data.photo,
+      username: userInfo?.info?.username,
+      userId: userInfo?.info?._id,
+      categories: cats || data?.categories,
+    };
+
+    try {
+      await axios.put(URL + `post/${id}`, object, {
+        headers: {
+          Authorization: userInfo?.token,
+          "Content-type": "application/json",
+        },
+      });
+
+      toast.success("Post updated successfully!");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong!");
+    }
+  };
+
+  useEffect(() => {
+    fetchPostUpdatedData();
+  }, []);
 
   return (
     <div className="w-[90%] sm:w-[70%] m-auto min-h-[63.2vh] h-auto mb-4 mt-4">
@@ -41,7 +82,17 @@ const EditPage = () => {
           name=""
           id=""
           className=" w-[60%] outline-none rounded-sm border border-red-400 placeholder:text-red-400 text-red-400 py-1 px-3 placeholder:text-sm text-sm"
-          placeholder="Enter post title..."
+          onChange={(e) => setTitle(e.target.value)}
+          value={title || data?.title}
+        />
+
+        <input
+          type="text"
+          name=""
+          id=""
+          className=" w-[60%] outline-none rounded-sm border border-red-400 placeholder:text-red-400 text-red-400 py-1 px-3 placeholder:text-sm text-sm"
+          value={file || data?.photo}
+          onChange={(e) => setFile(e.target.value)}
         />
         <div className="flex flex-col">
           <div className="flex items-center space-x-4 md:space-x-4">
@@ -89,26 +140,17 @@ const EditPage = () => {
         <textarea
           name=""
           className=" border border-red-400 rounded-sm placeholder:text-red-400 py-1 px-3 text-red-400 placeholder:text-sm text-sm outline-none"
-          placeholder="Enter post description..."
+          value={desc || data?.desc}
           id=""
           cols="30"
           rows="5"
+          onChange={(e) => setDesc(e.target.value)}
         ></textarea>
 
-        <label
-          className="text-sm border-red-400  py-1 p-3 w-fit cursor-pointer text-red-400 border hover:border-none hover:bg-red-400 hover:text-white rounded-sm"
-          htmlFor="fileUpload"
+        <button
+          className=" py-2 px-3 border border-red-400 text-sm rounded-sm text-red-400 hover:border-none hover:bg-red-400 hover:text-white"
+          onClick={handleUpdatePost}
         >
-          <input
-            type="file"
-            className=" hidden"
-            id="fileUpload"
-            onChange={(e) => setFile(e.target.files[0])}
-          />
-          {file === "" ? "Upload File" : file.name}
-        </label>
-
-        <button className=" py-2 px-3 border border-red-400 text-sm rounded-sm text-red-400 hover:border-none hover:bg-red-400 hover:text-white">
           Update
         </button>
       </div>
